@@ -23,6 +23,10 @@
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    // Silence deprecation errors that will be enforced in TS 7.0
+    "ignoreDeprecations": "6.0",
 
     // Style Options
     // "noImplicitReturns": true,
@@ -36,7 +40,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
