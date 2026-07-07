@@ -23,5 +23,14 @@ redisClient.on("error", (error) => {
     console.error("Error connecting to Redis: ", error);
 });
 
+export const bullmqRedis = new Redis(process.env.REDIS_HOST as string, {
+  maxRetriesPerRequest: null, 
+  retryStrategy(times) {
+    return Math.min(times * 200, 2000);
+  },
+});
+
+bullmqRedis.on("connect", () => console.log("BullMQ Redis connected successfully"));
+bullmqRedis.on("error", (err) => console.error(" BullMQ Redis error:", err.message));
 
 export default redisClient;
