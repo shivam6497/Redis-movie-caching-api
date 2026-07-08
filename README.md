@@ -146,8 +146,8 @@ Example body:
 
 ```json
 {
-  "name": "Shivam",
-  "email": "shivam@example.com",
+  "name": "user",
+  "email": "user@example.com",
   "password": "secret123"
 }
 ```
@@ -160,7 +160,7 @@ Example body:
 
 ```json
 {
-  "email": "shivam@example.com",
+  "email": "user@example.com",
   "password": "secret123"
 }
 ```
