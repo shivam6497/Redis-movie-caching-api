@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import movieRoutes from "./routes/movie.routes.js";
 import emailQueue, { addEmailJob as addWelcomeEmailJob, addMovieReportJob } from "./queues/email.queue.js";
 import "./workers/email.worker.js";
+import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const PORT = Number(process.env.PORT);
 
 app.use(express.json());
 app.use("/movies", movieRoutes);
+app.use("/auth", authRoutes);
 
 app.post("/test/welcome-email", async (req, res) => { 
   const { userId, email, name } = req.body;
