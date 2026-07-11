@@ -3,12 +3,12 @@ import { bullmqRedis } from "../config/redis.js";
 
 async function handleWelcomeEmail(job: Job) {
   const { userId, email, name, shouldFail } = job.data;
-  console.log(`[Worker] Processing welcome email...`); 
+  console.log(`[Worker] Processing welcome email...`);
 
   if (shouldFail) {
     throw new Error("Email service is down!");
   }
-  
+
   console.log(`  → User ID : ${userId}`);
   console.log(`  → Email   : ${email}`);
   console.log(`  → Name    : ${name}`);
@@ -16,6 +16,21 @@ async function handleWelcomeEmail(job: Job) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   console.log(`[Worker]  Welcome email sent to ${email}`);
+  return { success: true, sentTo: email };
+}
+
+async function handlePasswordReset(job: Job) {
+  const { userId, email, name, resetToken } = job.data;
+
+  console.log(`[Worker] Processing password reset...`);
+  console.log(`  → User ID     : ${userId}`);
+  console.log(`  → Email       : ${email}`);
+  console.log(`  → Name        : ${name}`);
+  console.log(`  → Reset Token : ${resetToken}`);
+
+  await new Promise((resolve) => setTimeout(resolve, 500)); // faster than welcome email
+
+  console.log(`[Worker] Password reset email sent to ${email}`);
   return { success: true, sentTo: email };
 }
 
@@ -33,23 +48,26 @@ async function handleMovieReport(job: Job) {
 }
 
 const emailWorker = new Worker(
-    "email-jobs",
-    async (job: Job) => {
-        switch (job.name) {
-            case "welcome-email":
-            return await handleWelcomeEmail(job);
+  "email-jobs",
+  async (job: Job) => {
+    switch (job.name) {
+      case "welcome-email":
+        return await handleWelcomeEmail(job);
 
-            case "movie-report":
-            return await handleMovieReport(job);
+      case "movie-report":
+        return await handleMovieReport(job);
 
-            default: 
-            throw new Error(`Unknown job type: ${job.name}`);
-        }
-    }, 
-    {
-        connection: bullmqRedis as any,
-        concurrency: 5,
+      case "password-reset":
+        return await handlePasswordReset(job);
+
+      default:
+        throw new Error(`Unknown job type: ${job.name}`);
     }
+  },
+  {
+    connection: bullmqRedis as any,
+    concurrency: 5,
+  },
 );
 
 emailWorker.on("completed", (job) => {
@@ -57,7 +75,9 @@ emailWorker.on("completed", (job) => {
 });
 
 emailWorker.on("failed", (job, err) => {
-  console.error(`[Worker] Job ${job?.id} (${job?.name}) failed: ${err.message}`);
+  console.error(
+    `[Worker] Job ${job?.id} (${job?.name}) failed: ${err.message}`,
+  );
   console.error(`  → Attempts made: ${job?.attemptsMade}`);
 });
 
