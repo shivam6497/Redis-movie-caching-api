@@ -33,4 +33,14 @@ export const bullmqRedis = new Redis(process.env.REDIS_HOST as string, {
 bullmqRedis.on("connect", () => console.log("BullMQ Redis connected successfully"));
 bullmqRedis.on("error", (err) => console.error(" BullMQ Redis error:", err.message));
 
+export const subRedis = new Redis(process.env.REDIS_HOST as string, {
+    lazyConnect: true,
+    retryStrategy(times) {
+        return Math.min(times * 200, 2000);
+    },
+});
+
+subRedis.on("connect", () => console.log("Pub/Sub Redis connected successfully"));
+subRedis.on("error", (err) => console.error("Pub/Sub Redis error:", err.message));
+
 export default redisClient;
