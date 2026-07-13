@@ -9,6 +9,8 @@ import { setupSchedulerJobs } from "./queues/scheduler.js";
 import { addUserOnboardingFlow, addWeeklyReportFlow } from "./queues/flow.producer.js";
 import { setupSubscribers } from "./pubsub/subscriber.js";
 import { publishUrlCreated, publishUrlClicked, publishUrlLimitReached } from "./pubsub/publisher.js";
+import { publishOrder } from "./streams/producer.js";
+import { v4 as uuidv4 } from "uuid";
 
 dotenv.config();
 
@@ -30,6 +32,19 @@ app.post("/test/movie-report", async (req, res) => {
   const { userId, reportType } = req.body;
   await addMovieReportJob({ userId, reportType });
   res.json({ message: "Movie report job queued (runs in 10 seconds)" });
+});
+
+app.post("/order", async (req, res) => {
+  const { userId, item, quantity } = req.body;
+  
+  const id = await publishOrder({
+    orderId: uuidv4(),
+    userId,
+    item,
+    quantity,
+  });
+
+  return res.json({ success: true, streamId: id });
 });
 
 app.post("/test/failing-job", async (req, res) => {
